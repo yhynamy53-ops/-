@@ -1,0 +1,5 @@
+{
+  "name": "Copy of ChatGPT-like Arabic Chat",
+  "description": "A fully functional, visually appealing ChatGPT-like web application in Arabic, allowing users to have conversations with an AI assistant, manage multiple chats, and switch between different AI personalities. The app is built with React, TypeScript, and Tailwind CSS, and powered by the Gemini API.",
+  "requestFramePermissions": []
+}

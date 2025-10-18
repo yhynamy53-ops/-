@@ -1,0 +1,74 @@
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>محاكاة شبيهة بـ ChatGPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: 'var(--bg)',
+            panel: 'var(--panel)',
+            muted: 'var(--muted)',
+            accent: 'var(--accent)',
+            'bubble-user': 'var(--bubble-user)',
+            'bubble-assistant': 'var(--bubble-assistant)',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #fff;
+      --muted: #6b7280;
+      --accent: #2b6df6;
+      --bubble-user: #e6f0ff;
+      --bubble-assistant: #f3f4f6;
+    }
+    .dark {
+      --bg: #0b1220;
+      --panel: #0f1724;
+      --muted: #9aa4b2;
+      --accent: #4f9dff;
+      --bubble-user: #17324a;
+      --bubble-assistant: #1f2937;
+    }
+    body {
+      font-family: system-ui, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial;
+      background: var(--bg);
+    }
+    /* Custom scrollbar for webkit browsers */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.25.0"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
