@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatPanel from './components/ChatPanel';
-import { Conversation, Message } from './types';
+import { Conversation, Message, GroundingSource } from './types';
 import { generateResponseStream, generateImage } from './services/geminiService';
 import useLocalStorage from './hooks/useLocalStorage';
 
@@ -117,7 +117,20 @@ const App: React.FC = () => {
         );
         
         try {
-          const stream = generateResponseStream(updatedHistory, modelType);
+          const onSources = (sources: GroundingSource[]) => {
+              setConversations(prev =>
+                prev.map(c => {
+                  if (c.id === activeConvoId) {
+                    const newMessages = [...c.messages];
+                    newMessages[newMessages.length - 1] = { ...newMessages[newMessages.length - 1], sources };
+                    return { ...c, messages: newMessages };
+                  }
+                  return c;
+                })
+              );
+          };
+
+          const stream = generateResponseStream(updatedHistory, modelType, onSources);
           let fullResponse = '';
           for await (const chunk of stream) {
             fullResponse += chunk;

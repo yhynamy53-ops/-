@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Content, Modality } from "@google/genai";
-import { Message } from '../types';
+import { Message, GroundingSource } from '../types';
 
 const getSystemInstruction = (modelType: string): string => {
   switch (modelType) {
@@ -10,6 +10,8 @@ const getSystemInstruction = (modelType: string): string => {
       return 'أنت مساعد سقراطي. هدفك هو مساعدة المستخدم على التفكير بنفسه عن طريق طرح أسئلة استقصائية بدلاً من إعطاء إجابات مباشرة.';
     case 'assistant-short':
       return 'أنت مساعد يقدم إجابات قصيرة وموجزة ومباشرة جداً.';
+    case 'software-finder':
+      return 'أنت مساعد متخصص في العثور على البرامج. استخدم الأدوات المتاحة لك للبحث عن المواقع الرسمية للبرامج التي يطلبها المستخدم. قدم دائمًا روابط للمواقع الرسمية وتجنب مواقع الطرف الثالث. أكد على أهمية التنزيل من المصادر الرسمية للأمان.';
     case 'assistant-default':
     default:
       return 'أنت مساعد ذكاء اصطناعي مفيد ومتعاون. أجب باللغة العربية.';
@@ -54,7 +56,8 @@ export async function generateImage(prompt: string): Promise<{imageUrl?: string,
 
 export async function* generateResponseStream(
   history: Message[],
-  modelType: string
+  modelType: string,
+  onSources: (sources: GroundingSource[]) => void
 ): AsyncGenerator<string> {
   if (!process.env.API_KEY) {
     yield "خطأ: مفتاح API غير موجود. يرجى التأكد من تهيئته.";
@@ -72,19 +75,39 @@ export async function* generateResponseStream(
 
     if (contents.length === 0) return;
 
-    const response = await ai.models.generateContentStream({
-      model: 'gemini-2.5-flash',
-      contents: contents,
-      config: {
-        systemInstruction: systemInstruction,
-      }
-    });
+    const request: any = {
+        model: 'gemini-2.5-flash',
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction,
+        }
+    };
+    
+    if (modelType === 'software-finder') {
+        request.config.tools = [{googleSearch: {}}];
+    }
 
-    for await (const chunk of response) {
+    const responseStream = await ai.models.generateContentStream(request);
+
+    for await (const chunk of responseStream.stream) {
       const text = chunk.text;
       if (text) {
         yield text;
       }
+    }
+
+    const finalResponse = await responseStream.response;
+    const groundingMetadata = finalResponse.candidates?.[0]?.groundingMetadata;
+
+    if (groundingMetadata?.groundingChunks) {
+        const sources: GroundingSource[] = groundingMetadata.groundingChunks
+            .map(chunk => chunk.web)
+            .filter((web): web is { uri: string; title?: string } => !!(web && web.uri))
+            .map(web => ({ uri: web.uri, title: web.title }));
+        
+        if (sources.length > 0) {
+            onSources(sources);
+        }
     }
   } catch (error) {
     console.error("Error generating response:", error);

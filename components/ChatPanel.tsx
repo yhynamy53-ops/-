@@ -29,6 +29,20 @@ const MessageBubble: React.FC<{ message: Message }> = React.memo(({ message }) =
                     <div dangerouslySetInnerHTML={{ __html: formattedText }} />
                 )}
             </div>
+            {message.sources && message.sources.length > 0 && (
+                <div className={`sources mt-2 text-xs ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                    <h4 className="font-bold text-muted mb-1">المصادر:</h4>
+                    <ul className="space-y-1">
+                        {message.sources.map((source, index) => (
+                            <li key={index}>
+                                <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline break-all">
+                                    {source.title || source.uri}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             <div className={`meta text-xs text-muted flex gap-2 items-center mt-1.5 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <span>{message.role === 'user' ? 'أنت' : 'المساعد'}</span>
                 <span>·</span>
@@ -119,6 +133,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ conversation, onSendMessage, mode
             <option value="assistant-helpful">مساعد ودود</option>
             <option value="assistant-socratic">طريقة سوكراتية</option>
             <option value="assistant-short">ردود قصيرة</option>
+            <option value="software-finder">باحث البرامج</option>
             <option value="image-generator">مولد الصور</option>
           </select>
           <button onClick={onClearMessages} className="copy-btn p-2 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5" title="مسح المحادثة">مسح</button>
